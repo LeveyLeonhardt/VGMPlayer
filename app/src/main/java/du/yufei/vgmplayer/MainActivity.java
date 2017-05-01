@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
 
     public static final String FILENAME1 = "PROJECT3.FILENAME1";
     public static final String FILENAME2 = "PROJECT3.FILENAME2";
+    public static final String ID = "PROJECT3.ID";
 
     private static GameMusicPlayer mPlayer;
     private Connection mConnection;
@@ -140,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
                     Intent intent = new Intent(getBaseContext(),MyService.class);
                     intent.putExtra(FILENAME1,mCurrentMusic.getFiles()[0]);
                     intent.putExtra(FILENAME2,mCurrentMusic.getFiles()[1]);
-                    Log.d("Main","Try to Bind Service");
+                    intent.putExtra(ID,mCurrentMusic.getId());
                     if(!isMyServiceRunning(MyService.class)) {
                         startService(intent);
                     }

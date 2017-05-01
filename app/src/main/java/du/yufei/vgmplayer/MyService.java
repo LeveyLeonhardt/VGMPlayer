@@ -27,7 +27,8 @@ public class MyService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId){
         String file1 = intent.getStringExtra(MainActivity.FILENAME1);
         String file2 = intent.getStringExtra(MainActivity.FILENAME2);
-        mPlayer = new GameMusicPlayer(getApplicationContext(),file1, file2);
+        int id = intent.getIntExtra(MainActivity.ID,0);
+        mPlayer = new GameMusicPlayer(getApplicationContext(),file1, file2,id);
         return START_NOT_STICKY;
     }
 

@@ -16,12 +16,14 @@ public class GameMusicPlayer {
     //mCurrentPlayer: The current activer player
     //mPlayer1: The player in charge of the first section and the looping section after mPlayer2 plays
     //mPlayer2: The player in charge of the looping section
-    private static MediaPlayer mCurrentPlayer, mPlayer1, mPlayer2;
+    private MediaPlayer mCurrentPlayer, mPlayer1, mPlayer2;
+    private int mMusicId;
 
-    public GameMusicPlayer(Context context, String file1, String file2){
+    public GameMusicPlayer(Context context, String file1, String file2, int id){
         //Initialize
         mPlayer1 = new MediaPlayer();
         mPlayer2 = new MediaPlayer();
+        mMusicId = id;
         try {
             final Context fContext = context;
             final String fUrl1 = file1, fUrl2 = file2;

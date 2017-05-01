@@ -18,6 +18,10 @@ public class Music {
         mImageFile = image;
     }
 
+    public int getId(){
+        return mId;
+    }
+
     public String getName(){
         return mName;
     }
