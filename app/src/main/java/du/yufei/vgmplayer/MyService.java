@@ -4,12 +4,18 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+import android.util.Log;
+import android.widget.Toast;
 
 public class MyService extends Service {
     private GameMusicPlayer mPlayer;
     private final IBinder mBinder = new LocalBinder();
 
     public MyService() {
+    }
+
+    public GameMusicPlayer getPlayer(){
+        return mPlayer;
     }
 
     @Override

@@ -1,13 +1,20 @@
 package du.yufei.vgmplayer;
 
+import android.app.ActivityManager;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.IBinder;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -33,6 +40,9 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
     private TextView mTrackName, mGameName, mArtistName;
     private ImageView mArtwork;
 
+    private MyService mService;
+    private ServiceConnection mServiceConnection;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,16 +53,34 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
         mGameName = (TextView) findViewById(R.id.text_game_name_main);
         mArtistName = (TextView)findViewById(R.id.text_artist_name_main);
         mArtwork = (ImageView) findViewById(R.id.image_album_main);
+        mServiceConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                mService = ((MyService.LocalBinder)service).getService();
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                mService = null;
+            }
+        };
     }
 
     public void toggle(View view){
-        if(mPlayer.isPlaying()){
+        GameMusicPlayer player = mService.getPlayer();
+        if(player.isPlaying()){
+            //((TextView)findViewById(R.id.text_main)).setText(pos);
+            player.pause();
+        }else{
+            player.start();
+        }
+        /*if(mPlayer.isPlaying()){
             String pos = String.valueOf(mPlayer.getCurrentPosition());
             //((TextView)findViewById(R.id.text_main)).setText(pos);
             mPlayer.pause();
         }else{
             mPlayer.start();
-        }
+        }*/
     }
 
     public void downloadFiles(String[] filenames){
@@ -109,9 +137,18 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
                     mGameName.setText(mCurrentMusic.getGame());
                     mArtistName.setText(mCurrentMusic.getArtist());
                     mArtwork.setImageURI(Uri.parse(getExternalCacheDir()+mCurrentMusic.getImageFilename()));
+                    Intent intent = new Intent(getBaseContext(),MyService.class);
+                    intent.putExtra(FILENAME1,mCurrentMusic.getFiles()[0]);
+                    intent.putExtra(FILENAME2,mCurrentMusic.getFiles()[1]);
+                    Log.d("Main","Try to Bind Service");
+                    if(!isMyServiceRunning(MyService.class)) {
+                        startService(intent);
+                    }
+                    bindService(intent,mServiceConnection, Context.BIND_WAIVE_PRIORITY);
                     //if(mPlayer != null) {
-                        mPlayer = new GameMusicPlayer(MainActivity.this, mCurrentMusic.getFiles()[0], mCurrentMusic.getFiles()[1]);
+                        //mPlayer = new GameMusicPlayer(MainActivity.this, mCurrentMusic.getFiles()[0], mCurrentMusic.getFiles()[1]);
                     //}
+
                 }
             }
         });
@@ -121,6 +158,18 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
     @Override
     protected void onDestroy(){
         super.onDestroy();
-        mPlayer.release();
+        unbindService(mServiceConnection);
+        //mPlayer.release();
+    }
+
+    //Cite: https://stackoverflow.com/questions/600207/how-to-check-if-a-service-is-running-on-android
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }
