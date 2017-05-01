@@ -15,6 +15,8 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -31,12 +33,16 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
     public static final String FILENAME1 = "PROJECT3.FILENAME1";
     public static final String FILENAME2 = "PROJECT3.FILENAME2";
     public static final String ID = "PROJECT3.ID";
+    public static final String JSON = "PROJECT3.JSON";
+    public static final int RC_MUSICLIST = 0;
+    public static final int DEFAULT_ID = 0;
 
     private static GameMusicPlayer mPlayer;
     private Connection mConnection;
     private String mMusicJson;
     private Music mCurrentMusic;
     private int mDownloadCounter, mFileNumber;
+    private boolean mImageReady, mBound;
 
     private TextView mTrackName, mGameName, mArtistName;
     private ImageView mArtwork;
@@ -48,12 +54,15 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mMusicJson = null;
         mConnection = new Connection(this);
         mDownloadCounter = 0;
         mTrackName = (TextView)findViewById(R.id.text_track_name_main);
         mGameName = (TextView) findViewById(R.id.text_game_name_main);
         mArtistName = (TextView)findViewById(R.id.text_artist_name_main);
         mArtwork = (ImageView) findViewById(R.id.image_album_main);
+        mImageReady = false;
+        mBound = false;
         mServiceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
@@ -65,6 +74,33 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
                 mService = null;
             }
         };
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.menu_list_music_main,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        boolean handled;
+        switch(item.getItemId()){
+            case R.id.menu_list_music:
+                handled = true;
+                if(mImageReady){
+                    Intent intent = new Intent(MainActivity.this, MusicListActivity.class);
+                    intent.putExtra(JSON,mMusicJson);
+                    startActivityForResult(intent,RC_MUSICLIST);
+                }else{
+                    Toast.makeText(this, R.string.toast_not_ready,Toast.LENGTH_SHORT);
+                }
+                break;
+            default:
+                handled = super.onOptionsItemSelected(item);
+                break;
+        }
+        return handled;
     }
 
     public void toggle(View view){
@@ -84,20 +120,11 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
         }*/
     }
 
-    public void downloadFiles(String[] filenames){
-        mFileNumber = filenames.length;
-        for(int i = 0; i < filenames.length; i++){
-            mConnection.downloadFile(filenames[i]);
-        }
-    }
-
-    @Override
-    public void jsonParsed(String json)  {
-        mMusicJson = json;
-        Toast.makeText(this,"Connected",Toast.LENGTH_SHORT).show();
+    public void initMusic(int id){
         try {
-            JSONArray jsonArray = new JSONArray(json);
-            JSONObject musArray = jsonArray.getJSONObject(2);
+            mDownloadCounter = 0;
+            JSONArray jsonArray = new JSONArray(mMusicJson);
+            JSONObject musArray = jsonArray.getJSONObject(id);
             mCurrentMusic = new Music(musArray.getInt("id"),musArray.getString("title")
                     ,musArray.getString("game"),musArray.getString("composer")
                     ,musArray.getString("file1"),musArray.getString("file2")
@@ -106,6 +133,29 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    public void downloadFiles(String[] filenames){
+        mFileNumber = filenames.length;
+        for(int i = 0; i < filenames.length; i++){
+            mConnection.downloadFile(filenames[i]);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        if(resultCode == RESULT_OK){
+            Log.d("Main","Returned");
+            initMusic(data.getIntExtra(ID,DEFAULT_ID));
+        }
+    }
+
+    @Override
+    public void jsonParsed(String json)  {
+        mMusicJson = json;
+        Toast.makeText(this,"Connected",Toast.LENGTH_SHORT).show();
+        mConnection.downloadImages(MusicJsonParser.getImageFilenames(json));
+        initMusic(DEFAULT_ID);
     }
 
     @Override
@@ -144,8 +194,16 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
                     intent.putExtra(ID,mCurrentMusic.getId());
                     if(!isMyServiceRunning(MyService.class)) {
                         startService(intent);
+                        bindService(intent,mServiceConnection, Context.BIND_WAIVE_PRIORITY);
+                        mBound = true;
+                    }else{
+                        if (!mBound){
+                            bindService(intent,mServiceConnection, Context.BIND_WAIVE_PRIORITY);
+                            mBound = true;
+                        }else {
+                            mService.updatePlayer(mCurrentMusic.getId(), mCurrentMusic.getFiles()[0], mCurrentMusic.getFiles()[1]);
+                        }
                     }
-                    bindService(intent,mServiceConnection, Context.BIND_WAIVE_PRIORITY);
                     //if(mPlayer != null) {
                         //mPlayer = new GameMusicPlayer(MainActivity.this, mCurrentMusic.getFiles()[0], mCurrentMusic.getFiles()[1]);
                     //}
@@ -154,6 +212,11 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
             }
         });
 
+    }
+
+    @Override
+    public void imagesParsed() {
+        mImageReady = true;
     }
 
     @Override

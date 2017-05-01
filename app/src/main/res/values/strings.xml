@@ -3,4 +3,8 @@
     <string name="dialog_failed">Failed to connect to server! Please try launching this app later!</string>
     <string name="dialog_failed_title">Error</string>
     <string name="dialog_failed_button">OK</string>
+    <string name="toast_not_ready">Loading config file from server, please wait until it\'s loaded</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

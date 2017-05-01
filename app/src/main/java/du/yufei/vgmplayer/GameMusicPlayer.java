@@ -19,7 +19,7 @@ public class GameMusicPlayer {
     private MediaPlayer mCurrentPlayer, mPlayer1, mPlayer2;
     private int mMusicId;
 
-    public GameMusicPlayer(Context context, String file1, String file2, int id){
+    public GameMusicPlayer(Context context, String file1, String file2, int id, boolean autostart){
         //Initialize
         mPlayer1 = new MediaPlayer();
         mPlayer2 = new MediaPlayer();
@@ -72,6 +72,9 @@ public class GameMusicPlayer {
             mPlayer2.setNextMediaPlayer(mPlayer1);
             //Set mPlayer1 as the current player
             mCurrentPlayer = mPlayer1;
+            if(autostart){
+                mCurrentPlayer.start();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -85,6 +88,16 @@ public class GameMusicPlayer {
     //Pause music
     public void pause(){
         mCurrentPlayer.pause();
+    }
+
+    //Auto start
+    public void autoStart(){
+        mPlayer1.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                mp.start();
+            }
+        });
     }
 
     //Release resources for both players
