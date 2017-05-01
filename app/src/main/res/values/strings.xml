@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">VGMPlayer</string>
+    <string name="dialog_failed">Failed to connect to server! Please try launching this app later!</string>
+    <string name="dialog_failed_title">Error</string>
+    <string name="dialog_failed_button">OK</string>
+</resources>
