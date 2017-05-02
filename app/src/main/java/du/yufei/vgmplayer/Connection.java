@@ -43,11 +43,28 @@ public class Connection {
 
     public Connection(Context context){
         mListener = (MusicParsedListener) context;
+    }
+
+    public boolean checkImages(String[] images){
+        for(int i = 0; i < images.length; i++){
+            File file = new File(((Context) mListener).getExternalCacheDir() + images[i]);
+            if(!file.exists()){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void downloadJson(){
         new GetJsonFromServer().execute();
     }
 
-    public void downloadFile(String filename){
-        new GetFileFromServer().execute(filename);
+    public void downloadFiles(String[] filenames){
+        if(!checkImages(filenames)) {
+            new GetFileFromServer().execute(filenames);
+        }else{
+            mListener.musicParsed();
+        }
     }
 
     public void downloadImages(String[] images) { new GetImagesFromServer().execute(images); }
@@ -98,42 +115,44 @@ public class Connection {
         protected Void doInBackground(String... params){
             HttpURLConnection connection = null;
             BufferedReader reader = null;
-            try{
-                URL url = new URL(HOSTNAME+params[0]);
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.connect();
+            for(int i = 0; i < params.length; i++) {
+                try {
+                    URL url = new URL(HOSTNAME + params[i]);
+                    connection = (HttpURLConnection) url.openConnection();
+                    connection.setRequestMethod("GET");
+                    connection.connect();
 
-                //Used buffered input stream and output stream to ensure that mp3 file get transferred correctly
-                //Cite: https://stackoverflow.com/questions/22326796/android-download-file-get-corrupted
-                BufferedInputStream inputStream = new BufferedInputStream(connection.getInputStream());
-                File file = new File(((Context)mListener).getExternalCacheDir()+params[0]);
-                file.getParentFile().mkdirs();
-                file.createNewFile();
-                FileOutputStream fileOutputStream = new FileOutputStream(file,false);
-                BufferedOutputStream outputStream = new BufferedOutputStream(fileOutputStream);
+                    //Used buffered input stream and output stream to ensure that mp3 file get transferred correctly
+                    //Cite: https://stackoverflow.com/questions/22326796/android-download-file-get-corrupted
+                    BufferedInputStream inputStream = new BufferedInputStream(connection.getInputStream());
+                    File file = new File(((Context) mListener).getExternalCacheDir() + params[i]);
+                    file.getParentFile().mkdirs();
+                    file.createNewFile();
+                    FileOutputStream fileOutputStream = new FileOutputStream(file, false);
+                    BufferedOutputStream outputStream = new BufferedOutputStream(fileOutputStream);
 
-                byte[] buffer = new byte[16384];
-                int length = 0;
-                while((length = inputStream.read(buffer,0,16384))!=-1){
-                    outputStream.write(buffer,0,length);
-                }
-                outputStream.flush();
-                inputStream.close();
-                outputStream.close();
-            }catch(Exception e){
-                e.printStackTrace();
-                mListener.jsonFailed();
-            }finally{
-                try{
-                    if(reader != null){
-                        reader.close();
+                    byte[] buffer = new byte[16384];
+                    int length = 0;
+                    while ((length = inputStream.read(buffer, 0, 16384)) != -1) {
+                        outputStream.write(buffer, 0, length);
                     }
-                    if(connection != null){
-                        connection.disconnect();
-                    }
-                }catch(IOException e){
+                    outputStream.flush();
+                    inputStream.close();
+                    outputStream.close();
+                } catch (Exception e) {
                     e.printStackTrace();
+                    mListener.jsonFailed();
+                } finally {
+                    try {
+                        if (reader != null) {
+                            reader.close();
+                        }
+                        if (connection != null) {
+                            connection.disconnect();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
             return null;

@@ -1,8 +1,13 @@
 <resources>
     <string name="app_name">VGMPlayer</string>
     <string name="dialog_failed">Failed to connect to server! Please try launching this app later!</string>
+    <string name="dialog_file_failed">Some files are corrupted! The app will be reset. Please open it again.</string>
     <string name="dialog_failed_title">Error</string>
     <string name="dialog_failed_button">OK</string>
+    <string name="dialog_warning_update">Updating library will reset the current music. Do you want to continue?</string>
+    <string name="dialog_warning_title">Warning</string>
+    <string name="dialog_warning_pos">Yes</string>
+    <string name="dialog_warning_neg">No</string>
     <string name="toast_not_ready">Loading config file from server, please wait until it\'s loaded</string>
 
     <!-- TODO: Remove or change this placeholder text -->

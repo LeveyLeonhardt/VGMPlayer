@@ -2,6 +2,11 @@
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/menu_preference"
+        android:icon="@drawable/ic_action_preference"
+        android:title="Preferences"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/menu_list_music"
         android:icon="@drawable/ic_action_music_list"
         android:title="Change Music"

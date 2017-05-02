@@ -25,7 +25,9 @@
 
         <service
             android:name=".MyService"
-            android:exported="false"></service>
+            android:exported="false" />
+
+        <activity android:name=".PreferenceActivity"></activity>
     </application>
 
 </manifest>

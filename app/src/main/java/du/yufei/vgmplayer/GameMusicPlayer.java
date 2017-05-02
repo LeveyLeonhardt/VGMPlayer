@@ -17,19 +17,26 @@ public class GameMusicPlayer {
     //mPlayer1: The player in charge of the first section and the looping section after mPlayer2 plays
     //mPlayer2: The player in charge of the looping section
     private MediaPlayer mCurrentPlayer, mPlayer1, mPlayer2;
+    private Context mContext;
+    private String mFile1, mFile2;
     private int mMusicId;
 
-    public GameMusicPlayer(Context context, String file1, String file2, int id, boolean autostart){
+    public GameMusicPlayer(Context context, String file1, String file2, int id){
         //Initialize
+        mContext = context;
+        mFile1 = file1;
+        mFile2 = file2;
         mPlayer1 = new MediaPlayer();
         mPlayer2 = new MediaPlayer();
         mMusicId = id;
+    }
+
+    //Prepare MediaPlayers
+    public void prepare(boolean autostart){
         try {
-            final Context fContext = context;
-            final String fUrl1 = file1, fUrl2 = file2;
             //Set Data Source for both players
-            mPlayer1.setDataSource(context.getExternalCacheDir().getPath()+file1);
-            mPlayer2.setDataSource(context.getExternalCacheDir().getPath()+file2);
+            mPlayer1.setDataSource(mContext.getExternalCacheDir().getPath()+mFile1);
+            mPlayer2.setDataSource(mContext.getExternalCacheDir().getPath()+mFile2);
             //mPlayer2.setDataSource(afd2.getFileDescriptor(),afd2.getStartOffset(),afd2.getLength());
             //Set mPlayer1's OnCompletionListener so that it starts mPlayer2 automatically
             //and reset mPlayer 1 to the same looping part
@@ -38,9 +45,10 @@ public class GameMusicPlayer {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
                     try {
+                        mCurrentPlayer.reset();
                         mCurrentPlayer = mPlayer2;
                         mPlayer1.reset();
-                        mPlayer1.setDataSource(fContext.getExternalCacheDir().getPath()+fUrl2);
+                        mPlayer1.setDataSource(mContext.getExternalCacheDir().getPath()+mFile2);
                         //mPlayer1.setDataSource(afd2.getFileDescriptor(),afd2.getStartOffset(),afd2.getLength());
                         mPlayer1.prepare();
                         mPlayer2.setNextMediaPlayer(mPlayer1);
@@ -54,9 +62,10 @@ public class GameMusicPlayer {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
                     try {
+                        mCurrentPlayer.reset();
                         mCurrentPlayer = mPlayer1;
                         mPlayer2.reset();
-                        mPlayer2.setDataSource(fContext.getExternalCacheDir().getPath()+fUrl2);
+                        mPlayer2.setDataSource(mContext.getExternalCacheDir().getPath()+mFile2);
                         mPlayer2.prepare();
                         mPlayer1.setNextMediaPlayer(mPlayer2);
                     }catch (IOException e) {
@@ -78,6 +87,17 @@ public class GameMusicPlayer {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    //Change music
+    public void setDataSource(String file1, String file2, int id){
+        //mCurrentPlayer.release();
+        //mCurrentPlayer.reset();
+        mPlayer1.reset();
+        mPlayer2.reset();
+        mFile1 = file1;
+        mFile2 = file2;
+        mMusicId = id;
     }
 
     //Start music
@@ -104,6 +124,8 @@ public class GameMusicPlayer {
     public void release(){
         mPlayer1.release();
         mPlayer2.release();
+        mPlayer1 = null;
+        mPlayer2 = null;
     }
 
     //If the player is playing or not

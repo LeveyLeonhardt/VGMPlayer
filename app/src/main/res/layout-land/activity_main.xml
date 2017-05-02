@@ -59,6 +59,7 @@
             android:id="@+id/image_back_music_main"
             android:layout_width="99dp"
             android:layout_height="match_parent"
+            android:onClick="prev"
             app:srcCompat="@drawable/ic_last_piece_black_24dp" />
 
         <ImageButton
@@ -74,6 +75,7 @@
             android:id="@+id/image_next_music_main"
             android:layout_width="99dp"
             android:layout_height="match_parent"
+            android:onClick="next"
             app:srcCompat="@drawable/ic_next_piece_black_24dp" />
     </LinearLayout>
 

@@ -22,11 +22,17 @@ public class MyService extends Service {
     }
 
     public void updatePlayer(int id, String file1, String file2){
+        Log.d(TAG, "Update Player: Orig: " + mId + " New: "+id);
         if(mId != id) {
-            mPlayer.release();
+            //mPlayer.release();
             mId = id;
-            mPlayer = new GameMusicPlayer(getApplicationContext(), file1, file2, mId, true);
+            mPlayer.setDataSource(file1,file2,id);
+            mPlayer.prepare(true);
         }
+    }
+
+    public boolean isPlaying(){
+        return mPlayer.isPlaying();
     }
 
     @Override
@@ -39,7 +45,8 @@ public class MyService extends Service {
         mId = intent.getIntExtra(MainActivity.ID,0);
         String file1 = intent.getStringExtra(MainActivity.FILENAME1);
         String file2 = intent.getStringExtra(MainActivity.FILENAME2);
-        mPlayer = new GameMusicPlayer(getApplicationContext(),file1, file2,mId, false);
+        mPlayer = new GameMusicPlayer(getApplicationContext(),file1, file2,mId);
+        mPlayer.prepare(false);
         return START_NOT_STICKY;
     }
 

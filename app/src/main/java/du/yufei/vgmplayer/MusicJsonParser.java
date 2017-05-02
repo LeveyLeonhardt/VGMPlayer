@@ -43,4 +43,14 @@ public class MusicJsonParser {
         }
         return null;
     }
+
+    public static int getMusicSize(String json){
+        try {
+            JSONArray jsonArray = new JSONArray(json);
+            return jsonArray.length();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }
