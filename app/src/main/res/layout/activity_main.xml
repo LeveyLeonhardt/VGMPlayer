@@ -21,24 +21,24 @@
 
         <TextView
             android:id="@+id/text_track_name_main"
+            style="@style/CustomTrackTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="TextView"
-            android:textColor="#000000"
-            android:textSize="30sp" />
+            android:text="Track Name" />
 
         <TextView
             android:id="@+id/text_game_name_main"
+            style="@style/CustomOtherTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="TextView"
-            android:textSize="14sp" />
+            android:text="Game" />
 
         <TextView
             android:id="@+id/text_artist_name_main"
+            style="@style/CustomOtherTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="TextView"
+            android:text="Composer"
             android:textSize="14sp" />
     </LinearLayout>
 
@@ -50,6 +50,7 @@
 
         <ImageButton
             android:id="@+id/image_back_music_main"
+            style="@style/CustomButton"
             android:layout_width="99dp"
             android:layout_height="match_parent"
             android:onClick="prev"
@@ -57,6 +58,7 @@
 
         <ImageButton
             android:id="@+id/image_play_music_main"
+            style="@style/CustomButton"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="0.99"
@@ -66,6 +68,7 @@
 
         <ImageButton
             android:id="@+id/image_next_music_main"
+            style="@style/CustomButton"
             android:layout_width="99dp"
             android:layout_height="match_parent"
             android:onClick="next"

@@ -8,6 +8,7 @@
 
     <Button
         android:id="@+id/button_update_preference"
+        style="@style/CustomButtonPref"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
@@ -20,6 +21,7 @@
 
     <Button
         android:id="@+id/button_sound_preference"
+        style="@style/CustomButtonPref"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
@@ -29,4 +31,15 @@
         android:layout_below="@+id/button_update_preference"
         android:onClick="seClicked"
         android:text="Disable Sound Effect" />
+
+    <Button
+        android:id="@+id/button_camera_preference"
+        style="@style/CustomButtonPref"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="cameraClicked"
+        android:text="Take a picture (Random Feature)"
+        android:layout_below="@+id/button_sound_preference"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 </RelativeLayout>

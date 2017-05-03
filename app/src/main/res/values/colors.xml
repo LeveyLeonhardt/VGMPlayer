@@ -3,4 +3,11 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="colorCustomPrimary1">#2e92f0</color>
+    <color name="colorCustomPrimaryDark1">#2a60df</color>
+    <color name="colorCustomAccent11">#d9dbd9</color>
+    <color name="colorCustomAccent12">#ffffff</color>
+    <color name="colorButton">#92c0eb</color>
+    <color name="colorTrackText">#000000</color>
+    <color name="colorOtherText">#4b4949</color>
 </resources>

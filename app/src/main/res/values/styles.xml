@@ -8,4 +8,29 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="CustomAppTheme" parent="AppTheme">
+        <item name="android:imageButtonStyle">@style/CustomButton</item>
+        <item name="colorPrimary">@color/colorCustomPrimary1</item>
+        <item name="colorPrimaryDark">@color/colorCustomPrimaryDark1</item>
+    </style>
+
+    <style name="CustomButton" parent="Widget.AppCompat.ImageButton">
+        <item name="android:background">@color/colorButton</item>
+    </style>
+
+    <style name="CustomButtonPref">
+        <item name="android:background">@color/colorButton</item>
+        <item name="android:layout_margin">5dp</item>
+    </style>
+
+    <style name="CustomTrackTextView">
+        <item name="android:textColor">@color/colorTrackText</item>
+        <item name="android:textSize">30sp</item>
+    </style>
+
+    <style name="CustomOtherTextView">
+        <item name="android:textColor">@color/colorOtherText</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
 </resources>
