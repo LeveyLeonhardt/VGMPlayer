@@ -45,6 +45,9 @@ public class Connection {
         mListener = (MusicParsedListener) context;
     }
 
+    //Check if files are cached already
+    //Although method name is checkImages, it can check all types of files
+    //That's why it's also used in downloadFiles method
     public boolean checkImages(String[] images){
         for(int i = 0; i < images.length; i++){
             File file = new File(((Context) mListener).getExternalCacheDir() + images[i]);
@@ -55,6 +58,7 @@ public class Connection {
         return true;
     }
 
+    //Download JSON
     public void downloadJson(){
         new GetJsonFromServer().execute();
     }

@@ -47,6 +47,8 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
     public static final int RC_PREFERENCE = 1;
     public static final int DEFAULT_ID = 0;
 
+    static final String TAG = "MainActivity";
+
     private static GameMusicPlayer mPlayer;
     private Connection mConnection;
     private String mMusicJson;
@@ -68,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //Initialize variables
         mMusicJson = null;
         mConnection = new Connection(this);
         mTrackName = (TextView)findViewById(R.id.text_track_name_main);
@@ -81,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
         mSoundPool = new SoundPool(1, AudioManager.STREAM_MUSIC,0);
         mLoadingDialog = new ProgressDialog(this,ProgressDialog.STYLE_SPINNER);
         mLoadingDialog.setMessage("Loading Data from Server");
+        //Initialize Service Connection for Service
         mServiceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
@@ -95,6 +99,8 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
                 mService = null;
             }
         };
+        //If the database is not empty, there is a config saved, so load config from database
+        //Otherwise, download new JSON file
         if(mDatabase.hasConfig()){
             Config config = mDatabase.getConfig();
             mMusicJson = config.getJson();
@@ -118,8 +124,9 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
         }else{
             mSoundEffect = true;
             mConnection.downloadJson();
+            mLoadingDialog.show();
         }
-
+        //Initialize sound effect file
         try {
             AssetFileDescriptor afd = getAssets().openFd("se.wav");
             mSoundId = mSoundPool.load(afd,1);
@@ -129,16 +136,19 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
 
     }
 
+    //Inflate Option Menu
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         getMenuInflater().inflate(R.menu.menu_list_music_main,menu);
         return true;
     }
 
+    //Option menu selected
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         boolean handled;
         switch(item.getItemId()){
+            //List of music
             case R.id.menu_list_music:
                 handled = true;
                 if(mImageReady){
@@ -149,6 +159,7 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
                     Toast.makeText(this, R.string.toast_not_ready,Toast.LENGTH_SHORT).show();
                 }
                 break;
+            //Preference
             case R.id.menu_preference:
                 handled = true;
                 Intent intent = new Intent(MainActivity.this, PreferenceActivity.class);
@@ -161,26 +172,21 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
         return handled;
     }
 
+    //Play/Pause
     public void toggle(View view){
         GameMusicPlayer player = mService.getPlayer();
         if(player.isPlaying()){
-            //((TextView)findViewById(R.id.text_main)).setText(pos);
             player.pause();
             mPlayButton.setImageResource(R.drawable.ic_play_arrow_black_24dp);
         }else{
             player.start();
             mPlayButton.setImageResource(R.drawable.ic_pause_black_24dp);
         }
-        /*if(mPlayer.isPlaying()){
-            String pos = String.valueOf(mPlayer.getCurrentPosition());
-            //((TextView)findViewById(R.id.text_main)).setText(pos);
-            mPlayer.pause();
-        }else{
-            mPlayer.start();
-        }*/
     }
 
+    //Next song
     public void next(View view){
+        //If sound effect is enabled, play sound effect
         if(mSoundEffect){
             mSoundPool.play(mSoundId, 1.0f, 1.0f, 1, 0, 1.0f);
         }
@@ -191,6 +197,7 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
         }
     }
 
+    //Previous song
     public void prev(View view){
         if(mSoundEffect){
             mSoundPool.play(mSoundId, 1.0f, 1.0f, 1, 0, 1.0f);
@@ -202,6 +209,7 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
         }
     }
 
+    //Prepare Music instance by the id of the song selected
     public void initMusic(int id){
         try {
             mLoadingDialog.show();
@@ -226,15 +234,20 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         if(resultCode == RESULT_OK){
+            Log.d(TAG, "Received Result");
+            //If the music list returned the selected music ID, prepare and play it
             if(requestCode == RC_MUSICLIST) {
-                Log.d("Main", "Returned");
                 initMusic(data.getIntExtra(ID, DEFAULT_ID));
             }
+            //Update preferences
             if(requestCode == RC_PREFERENCE){
+                //If user chooses to update library, re-download JSON
                 if(data.getBooleanExtra(PreferenceActivity.EXTRA_UPDATELIBRARY,false)){
                     Toast.makeText(this,"Updating Library from online...", Toast.LENGTH_LONG).show();
                     mConnection.downloadJson();
                 }else{
+                    //If user does not choose to update library but the resultCode is OK,
+                    //then user must choose toggle sound effect
                     mSoundEffect = !mSoundEffect;
                     Toast.makeText(this,(mSoundEffect? "Enabled":"Disabled") + " Sound Effect",Toast.LENGTH_SHORT).show();
                 }
@@ -242,14 +255,15 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
         }
     }
 
+    //Called when JSON file is downloaded
     @Override
     public void jsonParsed(String json)  {
         mMusicJson = json;
-        Toast.makeText(this,"Connected",Toast.LENGTH_SHORT).show();
         mConnection.downloadImages(MusicJsonParser.getImageFilenames(json));
         initMusic(DEFAULT_ID);
     }
 
+    //Called when JSON file is failed to be downloaded
     @Override
     public void jsonFailed() {
         runOnUiThread(new Runnable() {
@@ -268,17 +282,18 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
 
     }
 
+    //Called when music file is downloaded
     @Override
     public void musicParsed() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-
-                Toast.makeText(MainActivity.this,"DownloadComplete",Toast.LENGTH_SHORT).show();
+                //Set metadata
                 mTrackName.setText(mCurrentMusic.getName());
                 mGameName.setText(mCurrentMusic.getGame());
                 mArtistName.setText(mCurrentMusic.getArtist());
                 mArtwork.setImageURI(Uri.parse(getExternalCacheDir()+mCurrentMusic.getImageFilename()));
+                //Send music to the player Service
                 Intent intent = new Intent(getBaseContext(),MyService.class);
                 intent.putExtra(FILENAME1,mCurrentMusic.getFiles()[0]);
                 intent.putExtra(FILENAME2,mCurrentMusic.getFiles()[1]);
@@ -297,21 +312,18 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
                     }
                 }
                 mLoadingDialog.dismiss();
-                //if(mPlayer != null) {
-                    //mPlayer = new GameMusicPlayer(MainActivity.this, mCurrentMusic.getFiles()[0], mCurrentMusic.getFiles()[1]);
-                //}
-
-
             }
         });
 
     }
 
+    //Called when images are parsed
     @Override
     public void imagesParsed() {
         mImageReady = true;
     }
 
+    //Save config to database when destroyed
     @Override
     protected void onDestroy(){
         super.onDestroy();
@@ -325,9 +337,9 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
         }else{
             mDatabase.add(new Config(mMusicJson,mCurrentMusic.getId(),se));
         }
-        //mPlayer.release();
     }
 
+    //Check if the service is running
     //Cite: https://stackoverflow.com/questions/600207/how-to-check-if-a-service-is-running-on-android
     private boolean isMyServiceRunning(Class<?> serviceClass) {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);

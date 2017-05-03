@@ -17,10 +17,12 @@ public class MyService extends Service {
     public MyService() {
     }
 
+    //Get the current music player
     public GameMusicPlayer getPlayer(){
         return mPlayer;
     }
 
+    //Change song
     public void updatePlayer(int id, String file1, String file2){
         Log.d(TAG, "Update Player: Orig: " + mId + " New: "+id);
         if(mId != id) {
@@ -31,6 +33,7 @@ public class MyService extends Service {
         }
     }
 
+    //Return if music is currently playing
     public boolean isPlaying(){
         return mPlayer.isPlaying();
     }
