@@ -2,12 +2,13 @@ package du.yufei.vgmplayer;
 
 import android.app.Service;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
-public class MyService extends Service {
+public class MyService extends Service{
     private final String TAG = "MyService";
 
     private GameMusicPlayer mPlayer;
@@ -52,6 +53,7 @@ public class MyService extends Service {
         mPlayer.prepare(false);
         return START_NOT_STICKY;
     }
+
 
     public class LocalBinder extends Binder {
         MyService getService(){

@@ -2,10 +2,12 @@ package du.yufei.vgmplayer;
 
 import android.app.ActivityManager;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
@@ -14,6 +16,7 @@ import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.net.Uri;
 import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -90,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
         mSoundPool = new SoundPool(1, AudioManager.STREAM_MUSIC,0);
         mLoadingDialog = new ProgressDialog(this,ProgressDialog.STYLE_SPINNER);
         mLoadingDialog.setMessage("Loading Data from Server");
+
         //Initialize Service Connection for Service
         mServiceConnection = new ServiceConnection() {
             @Override
@@ -143,7 +147,20 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
+    @Override
+    protected void onResume(){
+        super.onResume();
+        //Register Broadcast Receiver
+        LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver,new IntentFilter(GameMusicPlayer.ACTION));
+    }
+
+    @Override
+    protected void onPause(){
+        super.onPause();
+        //Unregister Broadcast Receiver
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
     }
 
     //Inflate Option Menu
@@ -193,6 +210,18 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
             mPlayButton.setImageResource(R.drawable.ic_pause_black_24dp);
         }
     }
+
+    //Use Broadcast Receiver for changing icon for Pausing/Resuming due to AudioManager
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getBooleanExtra(GameMusicPlayer.ISPLAYING, false)){
+                mPlayButton.setImageResource(R.drawable.ic_pause_black_24dp);
+            }else{
+                mPlayButton.setImageResource(R.drawable.ic_play_arrow_black_24dp);
+            }
+        }
+    };
 
     //Next song
     public void next(View view){
