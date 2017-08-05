@@ -36,6 +36,11 @@ import java.io.IOException;
 import du.yufei.vgmplayer.ConfigDatabase.Config;
 import du.yufei.vgmplayer.ConfigDatabase.ConfigDatabase;
 
+
+/*
+    TODO: Split Database into Server Config Db and User Preference Db
+    TODO: Add Support for Multiple Server
+*/
 public class MainActivity extends AppCompatActivity implements Connection.MusicParsedListener{
 
     public static final String FILENAME1 = "PROJECT3.FILENAME1";
@@ -46,12 +51,13 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
     public static final int RC_MUSICLIST = 0;
     public static final int RC_PREFERENCE = 1;
     public static final int DEFAULT_ID = 0;
+    public static final String DEFAULT_HOST = "http://www.edward.moe/csc214/";
 
     static final String TAG = "MainActivity";
 
     private static GameMusicPlayer mPlayer;
     private Connection mConnection;
-    private String mMusicJson;
+    private String mMusicJson, mMusicHost;
     private Music mCurrentMusic;
     private boolean mImageReady, mBound, mSoundEffect;
     private ConfigDatabase mDatabase;
@@ -104,6 +110,8 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
         if(mDatabase.hasConfig()){
             Config config = mDatabase.getConfig();
             mMusicJson = config.getJson();
+            mMusicHost = config.getHost();
+            mConnection.setHost(mMusicHost);
             mSoundEffect = config.getSoundEnabled();
             if(mConnection.checkImages(MusicJsonParser.getImageFilenames(mMusicJson))){
                 mImageReady = true;
@@ -123,6 +131,8 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
             }
         }else{
             mSoundEffect = true;
+            mMusicHost = DEFAULT_HOST;
+            mConnection.setHost(mMusicHost);
             mConnection.downloadJson();
             mLoadingDialog.show();
         }
@@ -245,11 +255,19 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
                 if(data.getBooleanExtra(PreferenceActivity.EXTRA_UPDATELIBRARY,false)){
                     Toast.makeText(this,"Updating Library from online...", Toast.LENGTH_LONG).show();
                     mConnection.downloadJson();
+                }else if(data.getBooleanExtra(PreferenceActivity.EXTRA_UPDATEHOSTNAME,false)){
+                    //If user chooses to update Hostname, update hostname and re-download JSON
+                    mMusicHost = data.getStringExtra(PreferenceActivity.EXTRA_HOSTNAME);
+                    mConnection.setHost(mMusicHost);
+                    mConnection.downloadJson();
                 }else{
                     //If user does not choose to update library but the resultCode is OK,
                     //then user must choose toggle sound effect
                     mSoundEffect = !mSoundEffect;
-                    Toast.makeText(this,(mSoundEffect? "Enabled":"Disabled") + " Sound Effect",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this,(mSoundEffect? 
+                            getResources().getString(R.string.button_setting_sound_effect_enable):
+                            getResources().getString(R.string.button_setting_sound_effect_disable)),
+                            Toast.LENGTH_SHORT).show();
                 }
             }
         }
@@ -333,9 +351,9 @@ public class MainActivity extends AppCompatActivity implements Connection.MusicP
             se = 1;
         }
         if(mDatabase.hasConfig()){
-            mDatabase.update(new Config(mMusicJson,mCurrentMusic.getId(),se));
+            mDatabase.update(new Config(mMusicHost,mMusicJson,mCurrentMusic.getId(),se));
         }else{
-            mDatabase.add(new Config(mMusicJson,mCurrentMusic.getId(),se));
+            mDatabase.add(new Config(mMusicHost,mMusicJson,mCurrentMusic.getId(),se));
         }
     }
 

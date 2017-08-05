@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,14 +36,23 @@ public class Connection {
         public void imagesParsed();
     }
 
-    public final static String HOSTNAME = "http://www.edward.moe/csc214/";
-    public final static String JSONFILENAME = "music.json";
 
     private MusicParsedListener mListener;
     private String mJson;
+    private String mHost;
 
     public Connection(Context context){
         mListener = (MusicParsedListener) context;
+    }
+    
+    public Connection(Context context, String host){
+        mHost = host;
+        mListener = (MusicParsedListener) context;
+    }
+    
+    //Set Host Address
+    public void setHost(String url){
+        mHost = url;
     }
 
     //Check if files are cached already
@@ -82,7 +92,8 @@ public class Connection {
             HttpURLConnection connection;
             BufferedReader reader = null;
             try{
-                URL url = new URL(HOSTNAME+JSONFILENAME);
+                URL url = new URL(mHost+"music.json");
+                Log.d("Connection",url.toString());
                 connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
                 connection.connect();
@@ -121,7 +132,7 @@ public class Connection {
             BufferedReader reader = null;
             for(int i = 0; i < params.length; i++) {
                 try {
-                    URL url = new URL(HOSTNAME + params[i]);
+                    URL url = new URL(mHost + params[i]);
                     connection = (HttpURLConnection) url.openConnection();
                     connection.setRequestMethod("GET");
                     connection.connect();
@@ -176,7 +187,7 @@ public class Connection {
             BufferedReader reader = null;
             for(int i = 0; i < params.length; i++) {
                 try {
-                    URL url = new URL(HOSTNAME + params[i]);
+                    URL url = new URL(mHost + params[i]);
                     connection = (HttpURLConnection) url.openConnection();
                     connection.setRequestMethod("GET");
                     connection.connect();

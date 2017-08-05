@@ -42,7 +42,7 @@ public class MusicRecyclerHolder extends RecyclerView.ViewHolder{
         mTrackText.setText(mMusic.getName());
         mGameText.setText(mMusic.getGame());
         mArtistText.setText(mMusic.getArtist());
-        Log.d("Holder", Uri.parse(Connection.HOSTNAME+mMusic.getImageFilename()).toString());
+        //Log.d("Holder", Uri.parse(Connection.HOSTNAME+mMusic.getImageFilename()).toString());
         mArtwork.setImageURI(Uri.parse(mCacheDir+mMusic.getImageFilename()));
         mView.setOnClickListener(new View.OnClickListener() {
             @Override

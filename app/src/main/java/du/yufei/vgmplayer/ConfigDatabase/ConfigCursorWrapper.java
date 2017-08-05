@@ -14,7 +14,8 @@ public class ConfigCursorWrapper extends CursorWrapper {
     }
 
     public Config getConfig(){
-        return new Config(getString(getColumnIndex(ConfigDbSchema.ConfigTable.Cols.JSON)),
+        return new Config(getString(getColumnIndex(ConfigDbSchema.ConfigTable.Cols.HOST)),
+                getString(getColumnIndex(ConfigDbSchema.ConfigTable.Cols.JSON)),
                 getInt(getColumnIndex(ConfigDbSchema.ConfigTable.Cols.LASTPLAY)),
                 getInt(getColumnIndex(ConfigDbSchema.ConfigTable.Cols.SOUNDEFFECT)));
     }

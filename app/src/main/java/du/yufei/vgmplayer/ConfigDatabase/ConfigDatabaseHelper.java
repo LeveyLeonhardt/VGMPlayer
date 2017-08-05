@@ -17,6 +17,7 @@ public class ConfigDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("create table "+ ConfigDbSchema.ConfigTable.NAME + "(" +
+                ConfigDbSchema.ConfigTable.Cols.HOST+", "+
                 ConfigDbSchema.ConfigTable.Cols.JSON+", "+
                 ConfigDbSchema.ConfigTable.Cols.LASTPLAY+" integer, "+
                 ConfigDbSchema.ConfigTable.Cols.SOUNDEFFECT+" integer)");

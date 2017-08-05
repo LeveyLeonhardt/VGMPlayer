@@ -11,6 +11,7 @@ public class ConfigDbSchema {
     public static final class ConfigTable{
         public static final String NAME = "Config";
         public static final class Cols{
+            public static final String HOST = "host";
             public static final String JSON = "json";
             public static final String LASTPLAY = "last";
             public static final String SOUNDEFFECT = "se";

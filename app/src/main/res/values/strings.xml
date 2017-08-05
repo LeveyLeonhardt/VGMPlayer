@@ -8,7 +8,17 @@
     <string name="dialog_warning_title">Warning</string>
     <string name="dialog_warning_pos">Yes</string>
     <string name="dialog_warning_neg">No</string>
+    <string name="dialog_hostname_update_message">New Music Server Hostname:</string>
+    <string name="dialog_hostname_update_title">Library Hostname</string>
     <string name="toast_not_ready">Loading config file from server, please wait until it\'s loaded</string>
+    <string name="button_setting_update_library">Update Music Library</string>
+    <string name="button_setting_sound_effect_enable">Enable Sound Effect</string>
+    <string name="button_setting_sound_effect_disable">Disable Sound Effect</string>
+    <string name="button_setting_update_library_url">Update Music Library Address</string>
+
+    <string name="generic_enable">Enable</string>
+    <string name="generic_disable">Disable</string>
+
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

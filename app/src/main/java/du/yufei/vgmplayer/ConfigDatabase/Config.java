@@ -5,11 +5,12 @@ package du.yufei.vgmplayer.ConfigDatabase;
  */
 
 public class Config {
-    private String mJson;
+    private String mJson, mHost;
     private int mLast;
     private boolean mSound;
 
-    public Config(String json, int last, int sound){
+    public Config(String host, String json, int last, int sound){
+        mHost = host;
         mJson = json;
         mLast = last;
         if(sound == 0){
@@ -17,6 +18,10 @@ public class Config {
         }else{
             mSound = true;
         }
+    }
+
+    public String getHost(){
+        return mHost;
     }
 
     public String getJson(){

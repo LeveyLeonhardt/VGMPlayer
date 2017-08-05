@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import java.io.File;
@@ -21,8 +22,11 @@ import java.util.Date;
 
 public class PreferenceActivity extends AppCompatActivity {
 
-    public static final String EXTRA_UPDATELIBRARY = "PROJECT3.EXTRA_UPDATELIBRARY";
-    public static final String EXTRA_TOGGLESOUNDEFFECT = "PROJECT3.EXTRA_TOGGLESOUNDEFFECT";
+    public static final String EXTRA_UPDATELIBRARY = "VGMPLAYER.EXTRA_UPDATELIBRARY";
+    public static final String EXTRA_TOGGLESOUNDEFFECT = "VGMPLAYER.EXTRA_TOGGLESOUNDEFFECT";
+    public static final String EXTRA_UPDATEHOSTNAME = "VGMPLAYER.EXTRA_UPDATEHOSTNAME";
+    public static final String EXTRA_HOSTNAME = "VGMPLAYER.EXTRA_HOSTNAME";
+
 
     private String mCameraFilePath;
 
@@ -33,7 +37,9 @@ public class PreferenceActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_preference);
         ((Button)findViewById(R.id.button_sound_preference)).setText(
-                (getIntent().getBooleanExtra(MainActivity.SOUNDEFFECT,true)?"Disable":"Enable")+" Sound Effect");
+                (getIntent().getBooleanExtra(MainActivity.SOUNDEFFECT,true)?
+                        getResources().getString(R.string.button_setting_sound_effect_disable):
+                        getResources().getString(R.string.button_setting_sound_effect_enable)));
     }
 
     //Re-Download the json file to update library
@@ -67,58 +73,31 @@ public class PreferenceActivity extends AppCompatActivity {
         finish();
     }
 
-    //Take a picture (Random feature to meet the project requirement)
-    public void cameraClicked(View view){
-        dispatchTakePictureIntent();
-    }
+    //Update Library Hostname
+    public void hostUpdate(View view){
+        AlertDialog.Builder builder = new AlertDialog.Builder(PreferenceActivity.this);
+        final EditText hostnameText = new EditText(this);
+        hostnameText.setHint("New Hostname");
+        builder.setMessage(R.string.dialog_hostname_update_message).setTitle(R.string.dialog_hostname_update_title)
+                .setView(hostnameText)
+                .setPositiveButton(R.string.dialog_warning_pos, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent = new Intent();
+                        intent.putExtra(EXTRA_UPDATELIBRARY,false);
+                        intent.putExtra(EXTRA_TOGGLESOUNDEFFECT,false);
+                        intent.putExtra(EXTRA_UPDATEHOSTNAME, true);
+                        intent.putExtra(EXTRA_HOSTNAME, hostnameText.getText().toString());
+                        //TODO: Validate URL
+                        setResult(RESULT_OK,intent);
+                        finish();
+                    }
+                }).setNegativeButton(R.string.dialog_warning_neg, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
 
-    //Cite: https://developer.android.com/training/camera/photobasics.html
-    private void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        // Ensure that there's a camera activity to handle the intent
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            // Create the File where the photo should go
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-                // Error occurred while creating the File
-                Toast.makeText(this,"Failed to save the image",Toast.LENGTH_SHORT);
             }
-            // Continue only if the File was successfully created
-            if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(this,
-                        "du.yufei.vgmplayer.fileprovider",
-                        photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(takePictureIntent, RC_CAMERAINTENT);
-            }
-        }
+        }).create().show();
     }
 
-    //Cite: https://developer.android.com/training/camera/photobasics.html
-    private File createImageFile() throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
-
-        // Save a file: path for use with ACTION_VIEW intents
-        mCameraFilePath = image.getAbsolutePath();
-        return image;
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data){
-        if(resultCode == RESULT_OK){
-            if(requestCode == RC_CAMERAINTENT) {
-                Toast.makeText(this,"Image Saved to "+mCameraFilePath,Toast.LENGTH_LONG).show();
-            }
-        }
-    }
 }

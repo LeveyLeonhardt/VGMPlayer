@@ -50,6 +50,7 @@ public class ConfigDatabase {
 
     private static ContentValues getContentValues(Config config){
         ContentValues values = new ContentValues();
+        values.put(ConfigDbSchema.ConfigTable.Cols.HOST,config.getHost());
         values.put(ConfigDbSchema.ConfigTable.Cols.JSON, config.getJson());
         values.put(ConfigDbSchema.ConfigTable.Cols.LASTPLAY, config.getLast());
         int se = 0;
